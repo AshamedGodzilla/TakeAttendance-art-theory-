@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎨艺术概论 · 宾果×扭蛋点名机</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      font-size: 14px;
+    }
+
+    /* 边缘装饰粒子（不进中心区） */
+    .deco-particle {
+      position: absolute;
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 1;
+      animation: drift 25s infinite linear;
+    }
+    @keyframes drift {
+      to { transform: translate(var(--tx), var(--ty)) rotate(360deg); }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      z-index: 10;
+      text-shadow: 2px 2px 0 #000;
+    }
+    .header h1 {
+      font-size: 26px;
+      color: #ff79c6;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 12px;
+      color: #bd93f9;
+    }
+
+    .machine-container {
+      display: flex;
+      gap: 50px;
+      z-index: 10;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* —————— 宾果机 —————— */
+    .bingo-machine {
+      background: #282a36;
+      border: 6px solid #50fa7b;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 0 #000;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .bingo-title {
+      color: #50fa7b;
+      margin-bottom: 15px;
+      font-size: 16px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .bingo-drum {
+      width: 300px;
+      height: 300px;
+      background: #1e1f29;
+      border: 6px solid #ffb86c;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bingo-window {
+      width: 180px;
+      height: 180px;
+      background: white;
+      border: 6px solid #ff5555;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .bingo-name {
+      font-size: 28px;
+      color: #282a36;
+      text-align: center;
+      padding: 10px;
+      word-break: break-all;
+      text-shadow: none;
+      font-weight: bold;
+    }
+
+    /* 滚动球效果（伪） */
+    .rolling-ball {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #bd93f9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      opacity: 0.7;
+      animation: rollAround 4s linear infinite;
+    }
+    @keyframes rollAround {
+      0% { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+      100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+    }
+
+    /* —————— 扭蛋机 —————— */
+    .gashapon-machine {
+      background: #282a36;
+      border: 6px solid #ff79c6;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 0 #000;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gashapon-title {
+      color: #ff79c6;
+      margin-bottom: 15px;
+      font-size: 16px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .capsule-container {
+      width: 260px;
+      height: 300px;
+      background: #1e1f29;
+      border: 6px solid #f1fa8c;
+      border-radius: 20px;
+      position: relative;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column-reverse; /* 新的在底部 */
+      gap: 10px;
+    }
+
+    .capsule {
+      background: linear-gradient(to right, #ff79c6, #bd93f9);
+      border: 3px solid white;
+      border-radius: 30px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      color: white;
+      font-size: 14px;
+      text-shadow: 1px 1px 0 #000;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .capsule:hover {
+      transform: scale(1.03);
+    }
+
+    .capsule::before {
+      content: "●";
+      font-size: 18px;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+
+    button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      padding: 12px 24px;
+      background: #50fa7b;
+      color: #282a36;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 #000;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      background: #8be9fd;
+      transform: translate(2px, 2px);
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #6272a4;
+      text-shadow: 1px 1px 0 #000;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 装饰粒子（只在边缘） -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const icons = ['🎨', '🖌️', '🎭', '🎬', '🎵'];
+      const zones = [
+        { x: '0%', y: '10%' }, { x: '100%', y: '15%' },
+        { x: '5%', y: '90%' }, { x: '95%', y: '85%' },
+        { x: '0%', y: '50%' }, { x: '100%', y: '60%' }
+      ];
+      zones.forEach((zone, i) => {
+        const p = document.createElement('div');
+        p.className = 'deco-particle';
+        p.textContent = icons[i % icons.length];
+        p.style.left = zone.x;
+        p.style.top = zone.y;
+        p.style.fontSize = (24 + Math.random() * 16) + 'px';
+        p.style.setProperty('--tx', (Math.random() > 0.5 ? 1 : -1) * (50 + Math.random() * 100) + 'px');
+        p.style.setProperty('--ty', (Math.random() > 0.5 ? 1 : -1) * (50 + Math.random() * 100) + 'px');
+        p.style.opacity = 0.4 + Math.random() * 0.3;
+        document.body.appendChild(p);
+      });
+    });
+  </script>
+
+  <div class="header">
+    <h1>🎯 BINGO × 🥚 GASHAPON</h1>
+    <p>ART THEORY · CLASS 2025</p>
+  </div>
+
+  <div class="machine-container">
+    <!-- 宾果机 -->
+    <div class="bingo-machine">
+      <div class="bingo-title">BINGO DRAWER</div>
+      <div class="bingo-drum" id="bingoDrum">
+        <!-- 滚动球装饰 -->
+        <div class="rolling-ball" style="animation-delay: 0s;">?</div>
+        <div class="rolling-ball" style="animation-delay: -1s; background:#ff79c6;">?</div>
+        <div class="rolling-ball" style="animation-delay: -2s; background:#50fa7b;">?</div>
+        <div class="rolling-ball" style="animation-delay: -3s; background:#f1fa8c;">?</div>
+        <!-- 中央显示窗 -->
+        <div class="bingo-window">
+          <div class="bingo-name" id="bingoName">READY!</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="startBtn">DRAW</button>
+      </div>
+    </div>
+
+    <!-- 扭蛋机 -->
+    <div class="gashapon-machine">
+      <div class="gashapon-title">GASHAPON POD</div>
+      <div class="capsule-container" id="capsuleContainer">
+        <div style="color:#6272a4; text-align:center; padding:20px;">NO CAPSULES YET...</div>
+      </div>
+      <div class="controls">
+        <button id="resetBtn" style="background:#ff5555;">RESET ALL</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    VISUAL COMMUNICATION DESIGN · SELF-TAUGHT BACHELOR
+  </div>
+
+  <script>
+    const originalStudents = [
+      "范硕林", "黄家邦", "潘欣玉", "刘佳诺", "蔡佳恒", "王子懿", "程果", "李佳璐",
+      "纵富豪", "耿舒", "陈昊彤", "姜宗淼", "窦蒙爱", "张博文", "谭梦雨", "胡文雪",
+      "陈思含", "陈姝名", "孟卓", "刘亮灼", "张蕊", "魏文星多", "侯露莹", "傅玉鑫",
+      "周雨涛", "张聂语", "周念胜"
+    ];
+
+    let available = [...originalStudents];
+    let drawn = [];
+
+    const bingoNameEl = document.getElementById('bingoName');
+    const capsuleContainer = document.getElementById('capsuleContainer');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let isDrawing = false;
+
+    function updateCapsules() {
+      capsuleContainer.innerHTML = '';
+      if (drawn.length === 0) {
+        capsuleContainer.innerHTML = '<div style="color:#6272a4; text-align:center; padding:20px; font-size:12px;">NO CAPSULES YET...</div>';
+        return;
+      }
+      drawn.forEach((name, idx) => {
+        const cap = document.createElement('div');
+        cap.className = 'capsule';
+        cap.textContent = `#${idx + 1} ${name}`;
+        cap.onclick = () => {
+          if (confirm(`将【${name}】放回抽取池？`)) {
+            drawn = drawn.filter(n => n !== name);
+            available.push(name);
+            updateCapsules();
+          }
+        };
+        capsuleContainer.appendChild(cap);
+      });
+    }
+
+    startBtn.addEventListener('click', async () => {
+      if (isDrawing) return;
+      if (available.length === 0) {
+        bingoNameEl.textContent = "ALL DONE!";
+        return;
+      }
+
+      isDrawing = true;
+      startBtn.disabled = true;
+      startBtn.textContent = "DRAWING...";
+
+      // 模拟滚动效果
+      const duration = 2500 + Math.random() * 1000; // 2.5~3.5秒
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed > duration) {
+          clearInterval(interval);
+          return;
+        }
+        const randomName = available[Math.floor(Math.random() * available.length)];
+        bingoNameEl.textContent = randomName;
+      }, 80);
+
+      // 停止并选中
+      setTimeout(() => {
+        const selected = available[Math.floor(Math.random() * available.length)];
+        bingoNameEl.textContent = selected;
+        available = available.filter(n => n !== selected);
+        drawn.push(selected);
+        updateCapsules();
+
+        isDrawing = false;
+        startBtn.disabled = false;
+        startBtn.textContent = "DRAW AGAIN";
+      }, duration);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (confirm("重置所有抽取记录？")) {
+        available = [...originalStudents];
+        drawn = [];
+        bingoNameEl.textContent = "READY!";
+        startBtn.textContent = "DRAW";
+        updateCapsules();
+      }
+    });
+
+    updateCapsules();
+  </script>
+</body>
+</html>
+
+
